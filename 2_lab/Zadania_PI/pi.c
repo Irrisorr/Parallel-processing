@@ -140,8 +140,54 @@ int main(int argc, char *argv[])
     printf("Czas trwania obliczen rownoleglych - wallclock 118.808071 sekund\n");
     printf("Przyspieszenie 0.010\n\n");
 
-    printf("\nPodczas aktualizowania wartości sumy, nakładane są blokady (atomic - atomowy dostęp) przez co inne wątki nie mają do niej dostępu.\n");
+    printf("Podczas aktualizowania wartości sumy, nakładane są blokady (atomic - atomowy dostęp) przez co inne wątki nie mają do niej dostępu.\n");
     printf("Zapewnia to uniknięcie sytuacji wyścigu poprzez bezpośrednią kontrolę współbieżnych wątków.\n\n");
+
+
+
+    // =================================================== 4 zadanie ===================================================
+    printf("\n----------------------- 4 zadanie -----------------------\n");
+    for (int j = 1; j <= 16; j *= 2)
+    {
+
+        // volatile
+        double x, pi, sum = 0.0;
+        int i;
+        // RÓWNOLEGLE
+        pswtime = omp_get_wtime();
+        ppstart = clock();
+        sum = 0.0;
+        step = 1. / (double)num_steps;
+
+        #pragma omp parallel num_threads(j)
+        {
+            double private_sum = 0.0;
+            #pragma omp for
+            for (i = 0; i < num_steps; i++)
+            {
+                x = (i + .5) * step;
+                private_sum = private_sum + 4.0 / (1. + x * x);
+            }
+
+            # pragma omp atomic
+            sum = sum + private_sum;
+        }
+
+        pi = sum * step;
+
+        ppstop = clock();
+        pewtime = omp_get_wtime();
+
+        printf(">==========> threads = %d <==========<\n", j);
+        printf("%15.12f Wartosc liczby PI rownolegle \n", pi);
+        printf("Czas procesorów przetwarzania równoleglego  %f sekund \n", ((double)(ppstop - ppstart) / CLOCKS_PER_SEC));
+        printf("Czas trwania obliczen rownoleglych - wallclock %f sekund \n", pewtime - pswtime);
+        printf("Przyspieszenie %5.3f \n\n", (sewtime - sswtime) / (pewtime - pswtime));
+    }
+
+    printf("Poprawa czasów spowodowana jest znacznym zmniejszeniem liczby blokowań.\n\n");
+
+
 
 
     return 0;
