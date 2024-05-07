@@ -269,6 +269,7 @@ int main(int argc, char *argv[])
         printf("%15.12f Wartosc liczby PI rownolegle \n", pi);
         printf("Czas procesorów przetwarzania równoleglego  %f sekund \n", ((double)(ppstop - ppstart) / CLOCKS_PER_SEC));
         printf("Czas trwania obliczen rownoleglych - wallclock %f sekund \n\n", pewtime - pswtime);
+        printf("Przyspieszenie %5.3f \n\n", (sewtime - sswtime) / (pewtime - pswtime));
     }
 
 
